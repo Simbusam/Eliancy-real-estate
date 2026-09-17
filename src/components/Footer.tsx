@@ -286,9 +286,12 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom Disclaimers and Copyright */}
-        <div className="pt-8 text-xs text-slate-400 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} Eliancy Real Estate. All rights reserved. LENC Real Estate Asset Management.</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-slate-400">
+        <div className="pt-8 flex flex-col items-center justify-between gap-4 md:flex-row">
+          <div className="flex flex-col gap-1 text-xs text-slate-400 text-center md:text-left">
+            <p>© {new Date().getFullYear()} Eliancy Real Estate. All rights reserved. LENC Real Estate Asset Management.</p>
+            <p>Designed and Developed by <a href="https://zyrotechs.com" target="_blank" rel="noreferrer" className="text-sky-400 hover:text-sky-300 transition-colors">ZyroTechs.com</a></p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
             <span>Equal Housing Opportunity</span>
             <span>•</span>
             <span>Licensed Real Estate Agent & Investor</span>
