@@ -44,18 +44,63 @@ export const CashOfferModal: React.FC<CashOfferModalProps> = ({
     setStep(3);
   };
 
-  const handleSubmitFinal = (e: React.FormEvent) => {
+  const handleSubmitFinal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || !phone.trim()) return;
 
     setIsSubmitting(true);
-    // Simulate real estate valuation calculation and delivery
-    setTimeout(() => {
-      const generatedRef = 'ER-' + Math.floor(100000 + Math.random() * 900000);
-      setReferenceId(generatedRef);
+    
+    try {
+      const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+      
+      if (!accessKey) {
+        // Fallback for development if no key is set
+        console.warn("No Web3Forms access key found. Simulating submission.");
+        setTimeout(() => {
+          const generatedRef = 'ER-' + Math.floor(100000 + Math.random() * 900000);
+          setReferenceId(generatedRef);
+          setIsSubmitting(false);
+          setIsSubmitted(true);
+        }, 1200);
+        return;
+      }
+
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: "New Cash Offer Request - " + address,
+          from_name: fullName,
+          email: email,
+          phone: phone,
+          address: address + (city ? `, ${city}` : '') + (zip ? ` ${zip}` : ''),
+          property_type: propertyType,
+          property_condition: condition,
+          selling_situation: situation,
+          timeline: timeframe,
+          notes: notes || "No additional notes provided.",
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        const generatedRef = 'ER-' + Math.floor(100000 + Math.random() * 900000);
+        setReferenceId(generatedRef);
+        setIsSubmitted(true);
+      } else {
+        alert("Something went wrong! Please try calling us directly.");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("Error sending request. Please call us directly.");
+    } finally {
       setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 1200);
+    }
   };
 
   const handleResetAndClose = () => {

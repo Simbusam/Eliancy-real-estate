@@ -35,15 +35,57 @@ export const ContactView: React.FC<ContactViewProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim() || !phone.trim()) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
+    
+    try {
+      const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+      
+      if (!accessKey) {
+        // Fallback for development if no key is set
+        console.warn("No Web3Forms access key found. Simulating submission.");
+        setTimeout(() => {
+          setIsSubmitting(false);
+          setSubmitted(true);
+        }, 1000);
+        return;
+      }
+
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: "New General Inquiry - " + topic,
+          from_name: fullName,
+          email: email,
+          phone: phone,
+          address: address || "Not provided",
+          topic: topic,
+          preferred_time: preferredTime,
+          message: message || "No additional message.",
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        alert("Something went wrong! Please try calling us directly.");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("Error sending request. Please call us directly.");
+    } finally {
       setIsSubmitting(false);
-      setSubmitted(true);
-    }, 1000);
+    }
   };
 
   return (
