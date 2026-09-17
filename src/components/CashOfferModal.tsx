@@ -52,10 +52,24 @@ export const CashOfferModal: React.FC<CashOfferModalProps> = ({
     
     try {
       const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+      const sheetUrl = import.meta.env.VITE_GOOGLE_SHEET_URL;
       
-      if (!accessKey) {
+      const formData = {
+        source: "Cash Offer Form",
+        name: fullName,
+        email: email,
+        phone: phone,
+        address: address + (city ? `, ${city}` : '') + (zip ? ` ${zip}` : ''),
+        property_type: propertyType,
+        condition: condition,
+        topic: situation,
+        timeline: timeframe,
+        notes: notes || "No additional notes",
+      };
+
+      if (!accessKey && !sheetUrl) {
         // Fallback for development if no key is set
-        console.warn("No Web3Forms access key found. Simulating submission.");
+        console.warn("No API keys found. Simulating submission.");
         setTimeout(() => {
           const generatedRef = 'ER-' + Math.floor(100000 + Math.random() * 900000);
           setReferenceId(generatedRef);
@@ -65,30 +79,54 @@ export const CashOfferModal: React.FC<CashOfferModalProps> = ({
         return;
       }
 
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          access_key: accessKey,
-          subject: "New Cash Offer Request - " + address,
-          from_name: fullName,
-          email: email,
-          phone: phone,
-          address: address + (city ? `, ${city}` : '') + (zip ? ` ${zip}` : ''),
-          property_type: propertyType,
-          property_condition: condition,
-          selling_situation: situation,
-          timeline: timeframe,
-          notes: notes || "No additional notes provided.",
-        }),
-      });
+      let isSuccess = false;
 
-      const result = await response.json();
+      // 1. Send to Google Sheets if URL is configured
+      if (sheetUrl) {
+        try {
+          const formBody = new URLSearchParams();
+          Object.entries(formData).forEach(([key, value]) => {
+            formBody.append(key, value);
+          });
+          
+          await fetch(sheetUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: formBody.toString(),
+          });
+          isSuccess = true;
+        } catch (e) {
+          console.error("Sheet submission error", e);
+        }
+      }
+
+      // 2. Send to Web3Forms if Key is configured
+      if (accessKey) {
+        try {
+          const response = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              access_key: accessKey,
+              subject: "New Cash Offer Request - " + address,
+              from_name: fullName,
+              ...formData
+            }),
+          });
+          const result = await response.json();
+          if (result.success) isSuccess = true;
+        } catch (e) {
+          console.error("Web3Forms submission error", e);
+        }
+      }
       
-      if (result.success) {
+      if (isSuccess) {
         const generatedRef = 'ER-' + Math.floor(100000 + Math.random() * 900000);
         setReferenceId(generatedRef);
         setIsSubmitted(true);
