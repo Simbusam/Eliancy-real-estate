@@ -52,7 +52,7 @@ export const CashOfferModal: React.FC<CashOfferModalProps> = ({
     
     try {
       const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
-      const sheetUrl = import.meta.env.VITE_GOOGLE_SHEET_URL;
+      const sheetUrl = import.meta.env.VITE_GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbwe6Cjabe6yGsEOoKvxIRRdvExJavnI_JCvZCz2H2Rh6X5XjtBtuN6aITfFacBcMhy7/exec";
       
       const formData = {
         source: "Cash Offer Form",
