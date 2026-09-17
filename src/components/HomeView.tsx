@@ -70,8 +70,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
               {/* Main Headline */}
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 font-serif-luxury leading-[1.15]">
-                Want a Cash Offer? <br />
-                <span className="text-sky-700">Get a Fair Cash Offer Today.</span>
+                A Clearer, Calmer Way <br />
+                <span className="text-sky-700">to Sell Your Property.</span>
               </h1>
 
               {/* Subtitle */}
