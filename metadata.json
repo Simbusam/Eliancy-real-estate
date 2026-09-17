@@ -1,0 +1,6 @@
+{
+  "name": "Eliancy Real Estate",
+  "description": "Get a fair cash offer or professional MLS listing with licensed agent & active investor Paulson Eliancy. Zero fees, no repairs, sell as-is on your timeline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
